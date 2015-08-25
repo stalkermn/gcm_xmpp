@@ -17,18 +17,7 @@
 gcm_message_validate(#gcm_message{to = undefined}) ->
     throw({package_validation, <<"param 'to' requiered">>});
 
-gcm_message_validate(#gcm_message{data = undefined, notification = undefined}) ->
-    throw({package_validation, <<"param 'notification' or 'data' not found">>});
-
-gcm_message_validate(#gcm_message{notification = Notification}) when not is_record(Notification, notification) ->
-    throw({package_validation, <<"wrong datatype in 'notification' param">>});
-
-gcm_message_validate(#gcm_message{notification = Notification, data = Data})
-    when is_record(Notification, notification) andalso Data =/= undefined ->
-    throw({package_validation, <<"only one message accepted 'notification' or 'data' ">>});
-
-
-gcm_message_validate(#gcm_message{notification = #notification{body = Text, title = Title}} = GcmMessage) ->
+gcm_message_validate(#gcm_message{payload = #notification{body = Text, title = Title, icon = Icon}} = GcmMessage) ->
     if
         Text =/= undefined
             andalso
@@ -36,7 +25,11 @@ gcm_message_validate(#gcm_message{notification = #notification{body = Text, titl
         true ->
             throw({package_validation, <<" 'notification.text' absent or wrong type ">>})
     end,
-
+    if
+        Icon =/= undefined andalso is_binary(Icon) -> ok;
+        true ->
+            throw({package_validation, <<" 'notification.icon' absent or wrong type ">>})
+    end,
     if
         Title =/= undefined andalso is_binary(Title) ->
             other_gcm_message_validate(GcmMessage);
@@ -44,7 +37,7 @@ gcm_message_validate(#gcm_message{notification = #notification{body = Text, titl
             throw({package_validation, <<" 'notification.title' absent or wrong type ">>})
     end;
 
-gcm_message_validate(#gcm_message{data = Data} = GcmMessage) ->
+gcm_message_validate(#gcm_message{payload = Data} = GcmMessage) ->
     case jsx:is_term(Data) of
         true ->
             other_gcm_message_validate(GcmMessage);
@@ -52,10 +45,16 @@ gcm_message_validate(#gcm_message{data = Data} = GcmMessage) ->
             throw({package_validation, <<"'data' have wrong type. Must be in jsx_term format">>})
     end.
 
+
+
 other_gcm_message_validate(#gcm_message{
                             ttl = TTL,
                             delivery_receipt_requested = DelivFlag,
-                            delay_while_idle = IdleDelay
+                            delay_while_idle = IdleDelay,
+                            collapse_key = CollapseKey,
+                            content_available = ContentAvailable,
+                            priority = Priority,
+                            dry_run = DryRun
                           }) ->
     if
         IdleDelay =/= undefined andalso not is_boolean(IdleDelay) ->
@@ -64,8 +63,20 @@ other_gcm_message_validate(#gcm_message{
         DelivFlag =/= undefined andalso not is_boolean(DelivFlag) ->
             throw({package_validation, <<"'gcm_message.delivery_receipt_requested' have wrong type">>});
 
+        ContentAvailable =/= undefined andalso not is_boolean(ContentAvailable) ->
+            throw({package_validation, <<"'gcm_message.content_available' have wrong type">>});
+
+        DryRun =/= undefined andalso not is_boolean(DryRun) ->
+            throw({package_validation, <<"'gcm_message.dry_run' have wrong type">>});
+
         TTL =/= undefined andalso not is_binary(TTL) ->
             throw({package_validation, <<"'gcm_message.ttl' have wrong type">>});
+
+        Priority =/= undefined andalso not is_binary(Priority) ->
+            throw({package_validation, <<"'gcm_message.priority' have wrong type">>});
+
+        CollapseKey =/= undefined andalso not is_binary(CollapseKey) ->
+            throw({package_validation, <<"'gcm_message.collapse_key' have wrong type">>});
 
         true -> ok
     end.

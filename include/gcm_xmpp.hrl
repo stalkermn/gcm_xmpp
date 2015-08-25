@@ -26,8 +26,7 @@
 
 -record(gcm_message, {
     to :: registration_id(),
-    notification :: #notification{} | undefined,
-    data :: jsx:json_term(),
+    payload :: #notification{} | jsx:json_term() | undefined,
 
     ttl :: binary(),
     collapse_key :: binary(),
@@ -37,3 +36,8 @@
     delay_while_idle :: boolean() | undefined,
     delivery_receipt_requested :: boolean() | undefined
 }).
+
+-record(gcm_error, {message_id}).
+-record(gcm_nack, {message_id, error, error_description}).
+-record(gcm_ack, {message_id}).
+-record(gcm_control, {control_type}).
