@@ -34,9 +34,9 @@ assemble(GcmMessage, MessageId)->
 
     jsx:encode([
         {<<"to">>, To},
-        {<<"message_id">>, MessageId},
-        assemble_notification_payload(Payload) |
+        {<<"message_id">>, MessageId} |
         assemble_additional_params([
+            assemble_notification_payload(Payload),
             {<<"time_to_live">>, TTL},
             {<<"delay_while_idle">>, IdleDelayFlag},
             {<<"delivery_receipt_requested">>, DeliveryRecieptFlag},
@@ -71,8 +71,8 @@ assemble_notification_payload(#notification{} = Notification) ->
 assemble_notification_payload(Data) when is_list(Data) ->
     {<<"data">>, Data};
 
-assemble_notification_payload(_) ->
-    erlang:throw({package_assembling, <<"wrong 'data' or 'notification'">>}) .
+assemble_notification_payload(undefined) ->
+    {<<"">>,undefined}.
 
 
 -spec disassemble_data(jsx:json_term()) ->
