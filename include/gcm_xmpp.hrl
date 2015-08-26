@@ -9,10 +9,6 @@
 -author("valeriy.vasilkov <valeriy.vasilkov@gmail.com>").
 
 
-
-
--type registration_id() :: binary().
-
 -record(notification, {
     title :: binary(),
     body :: binary(),
@@ -28,16 +24,37 @@
     to :: registration_id(),
     payload :: #notification{} | jsx:json_term() | undefined,
 
+    delay_while_idle :: boolean() | undefined,
+    delivery_receipt_requested :: boolean() | undefined,
     ttl :: binary(),
     collapse_key :: binary(),
     priority :: binary(),
     content_available :: boolean(),
-    dry_run :: boolean(),
-    delay_while_idle :: boolean() | undefined,
-    delivery_receipt_requested :: boolean() | undefined
+    dry_run :: boolean()
+
 }).
 
--record(gcm_error, {message_id}).
--record(gcm_nack, {message_id, error, error_description}).
--record(gcm_ack, {message_id}).
--record(gcm_control, {control_type}).
+-record(gcm_error, {
+    message_id :: message_id()
+}).
+-record(gcm_nack, {
+    message_id :: message_id(),
+    error :: binary(),
+    error_description :: binary()
+}).
+-record(gcm_ack, {
+    message_id :: message_id()
+}).
+-record(gcm_control, {
+    control_type :: binary()
+}).
+-record(gcm_receipt, {
+    message_id :: message_id(),
+    message_status :: binary(),
+    category :: binary()
+}).
+
+-type registration_id() :: binary().
+-type message_id() :: binary().
+-type gcm_reply() ::  #gcm_nack{} | #gcm_ack{} | #gcm_receipt{} | {error, term()}.
+-type gcm_payload() :: #notification{} | jsx:json_term().

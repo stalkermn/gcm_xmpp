@@ -37,13 +37,16 @@ gcm_message_validate(#gcm_message{payload = #notification{body = Text, title = T
             throw({package_validation, <<" 'notification.title' absent or wrong type ">>})
     end;
 
-gcm_message_validate(#gcm_message{payload = Data} = GcmMessage) ->
+gcm_message_validate(#gcm_message{payload = Data} = GcmMessage) when is_list(Data) ->
     case jsx:is_term(Data) of
         true ->
             other_gcm_message_validate(GcmMessage);
         false ->
             throw({package_validation, <<"'data' have wrong type. Must be in jsx_term format">>})
-    end.
+    end;
+
+gcm_message_validate(#gcm_message{payload = undefined} = GcmMessage) ->
+    other_gcm_message_validate(GcmMessage).
 
 
 

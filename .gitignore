@@ -10,3 +10,5 @@ exmpp_v0.9.9/
 /ebin
 .idea/
 *.iml
+sample.config
+log/

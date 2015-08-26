@@ -19,9 +19,7 @@
 -spec assemble(GcmMessage, MessageId :: binary()) -> jsx:json_text() when
     GcmMessage :: #gcm_message{}.
 assemble(GcmMessage, MessageId)->
-
     ok = gcm_xmpp_validator:gcm_message_validate(GcmMessage),
-
     #gcm_message{
         to = To,
         payload = Payload,
@@ -75,7 +73,7 @@ assemble_notification_payload(_) ->
 
 %% assemble(_To, Notification, Data, TTL, IdleDelayFlag, DeliveryRecieptFlag) ->
 -spec disassemble_data(jsx:json_term()) ->
-    #gcm_ack{} | #gcm_nack{} | #gcm_error{} | #gcm_control{}.
+    gcm_reply().
 disassemble_data(Data) ->
     JSONData = jsx:decode(exmpp_xml:get_cdata(Data)),
     {_, MessageId} = lists:keyfind(<<"message_id">>, 1, JSONData),
@@ -84,6 +82,14 @@ disassemble_data(Data) ->
 
 do_disassemble(MessageId, <<"ack">>, _Data) ->
     #gcm_ack{ message_id = MessageId };
+do_disassemble(MessageId, <<"receipt">>, Data) ->
+    ReceiptData = proplists:get_value(<<"data">>, Data),
+    #gcm_receipt{
+        message_id = MessageId,
+        message_status = proplists:get_value(<<"message_status">>, ReceiptData),
+        category = proplists:get_value(<<"category">>, Data)
+
+    };
 do_disassemble(MessageId, <<"nack">>, Data) ->
     #gcm_nack{
         message_id = MessageId,
@@ -95,6 +101,7 @@ do_disassemble(_, <<"control">>, Data) ->
         control_type = proplists:get_value(<<"control_type">>, Data)
     }.
 
+-spec assemble_xmpp_packet(#gcm_message{})-> xmlel().
 assemble_xmpp_packet(GcmMessage) ->
     MessageId = list_to_binary(exmpp_utils:random_id("xmpp-gcm")),
     AssembledJSONPacket = gcm_xmpp_assembler:assemble(GcmMessage, MessageId),

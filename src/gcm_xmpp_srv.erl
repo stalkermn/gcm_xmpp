@@ -104,7 +104,7 @@ init([GCMJid, ApiKey, GcmEndpoint, GcmEndpointPort] = Config) ->
     {stop, {shutdown, {unexpected_call, UnexpecterCall :: term()}}, #st{}} when
 
     Request :: #gcm_message{},
-    Reply :: #gcm_ack{} | #gcm_nack{} | #gcm_error{}.
+    Reply :: gcm_reply().
 
 handle_call(#gcm_message{} = GcmMessage, _From, #st{session = undefined} = State) ->
     #st{
