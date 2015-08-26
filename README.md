@@ -9,20 +9,19 @@ Some of the benefits of CCS:
  - Communication is bidirectional—not only can your server send messages to the device, but the device can send messages back to your server.
  - The device can send messages back using the same connection used for receiving, thereby improving battery life.
 
->More information about CSS you can find there:  [Cloud Connection Server](https://developers.google.com/cloud-messaging/ccs)
+More information about CSS you can find there:  [Cloud Connection Server](https://developers.google.com/cloud-messaging/ccs)
 
 Getting Started
 =======
-
 ### How to compile
 ```sh
 git clone https://github.com/stalkermn/gcm_xmpp.git 
 cd gcm_xmpp
 make
 ```
-> gcm_xmpp use exmpp by process-one. exmpp works as xmpp client to `Google Cloud Messaging CCS`.
+gcm_xmpp use exmpp by process-one. exmpp works as xmpp client to `CCS`.
 ### Running application
-> gcm_xmpp is not standalone application. It's only OTP library with couple of fucntions for use. 
+gcm_xmpp is not standalone application. It's only OTP library with couple of fucntions for use. 
 Working with gcm_xmpp requeire to run some depends applications
 
 ```erlang    
@@ -36,7 +35,7 @@ application:start(gcm_xmpp)
 gcm_xmpp:start().
 ``` 
 ### Starting new worker
-> CCS has few endpoints with different ports. Thats why we can manipulate, while starting a new worker.
+CCS has few endpoints with different ports. Thats why we can manipulate, while starting a new worker.
 ```erlang    
 gcm_xmpp:start_link(GcmJid, APIKey, GcmEndpoint, GcmEndpointPort).
 ``` 
@@ -62,7 +61,7 @@ gcm_xmpp:start_link(GcmJid, APIKey).
 ```erlang
 gcm_xmpp:start_link().
 ``` 
-> All configuration params which are don't present visibly in start_link call will be taken from Enviroment. For example, your enviroment must be configured such as:
+All configuration params which are don't present visibly in start_link call will be taken from Enviroment. For example, your enviroment must be configured such as:
 ```erlang    
 {gcm_xmpp, [
     {gcm_jid, "<Project Number>@gcm.googleapis.com"},
@@ -104,8 +103,8 @@ gcm_xmpp:send_push(Session, To, Data)
 ```erlang
 -type gcm_reply() :: #gcm_nack{} | #gcm_ack{} | #gcm_receipt{} | {error, term()}.
 ```
-> For more information about CCS response information, [Google Cloud Messaging CSS: Response Format](https://developers.google.com/cloud-messaging/ccs)
+For more information about CCS response information, [Google Cloud Messaging CSS: Response Format](https://developers.google.com/cloud-messaging/ccs)
 
 License
 ----
-> MIT
+MIT
