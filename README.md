@@ -1,6 +1,7 @@
 gcm_xmpp
 =======
 This software provides an Erlang client for [`Google Cloud Messaging`](http://developer.android.com/google/gcm/index.html "Google Cloud Messaging") using XMPP connection.
+[![Build Status](https://travis-ci.org/stalkermn/gcm_xmpp.svg)](https://travis-ci.org/stalkermn/gcm_xmpp)
 ### How it works:
 > gcm_xmpp use  CCS (Cloud Connection Server). It's an XMPP endpoint that provides a persistent, asynchronous, bidirectional connection to Google servers.
 
