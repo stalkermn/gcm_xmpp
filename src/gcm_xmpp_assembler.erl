@@ -25,7 +25,11 @@ assemble(GcmMessage, MessageId)->
         payload = Payload,
         ttl = TTL,
         delay_while_idle = IdleDelayFlag,
-        delivery_receipt_requested = DeliveryRecieptFlag
+        delivery_receipt_requested = DeliveryRecieptFlag,
+        collapse_key = CollapseKey,
+        priority = Priority,
+        content_available = ContentAvailable,
+        dry_run = DryRun
     } = GcmMessage,
 
     jsx:encode([
@@ -35,7 +39,11 @@ assemble(GcmMessage, MessageId)->
         assemble_additional_params([
             {<<"time_to_live">>, TTL},
             {<<"delay_while_idle">>, IdleDelayFlag},
-            {<<"delivery_receipt_requested">>, DeliveryRecieptFlag}
+            {<<"delivery_receipt_requested">>, DeliveryRecieptFlag},
+            {<<"collapse_key">>, CollapseKey},
+            {<<"priority">>, Priority},
+            {<<"content_available">>, ContentAvailable},
+            {<<"dry_run">>, DryRun}
         ])
     ]).
 
@@ -43,12 +51,8 @@ assemble_additional_params(List) ->
     lists:filter(
         fun
             ({_, undefined}) -> false;
-            ({<<"delay_while_idle">>, Value}) when is_boolean(Value) ->
-                true;
-            ({<<"delivery_receipt_requested">>, Value}) when is_boolean(Value) ->
-                true
-        end,
-        List).
+            ({_, _})  -> true
+        end, List).
 
 assemble_notification_payload(#notification{} = Notification) ->
     Fields = record_info(fields, notification),
@@ -71,7 +75,6 @@ assemble_notification_payload(_) ->
     erlang:throw({package_assembling, <<"wrong 'data' or 'notification'">>}) .
 
 
-%% assemble(_To, Notification, Data, TTL, IdleDelayFlag, DeliveryRecieptFlag) ->
 -spec disassemble_data(jsx:json_term()) ->
     gcm_reply().
 disassemble_data(Data) ->
