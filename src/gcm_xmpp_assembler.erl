@@ -81,7 +81,7 @@ disassemble_data(Data) ->
     JSONData = jsx:decode(exmpp_xml:get_cdata(Data)),
     {_, MessageId} = lists:keyfind(<<"message_id">>, 1, JSONData),
     {_, MessageType} = lists:keyfind(<<"message_type">>, 1, JSONData),
-    {MessageId, do_disassemble(MessageId, MessageType, Data)}.
+    {MessageId, do_disassemble(MessageId, MessageType, JSONData)}.
 
 do_disassemble(MessageId, <<"ack">>, _Data) ->
     #gcm_ack{ message_id = MessageId };
@@ -90,7 +90,7 @@ do_disassemble(MessageId, <<"receipt">>, Data) ->
     #gcm_receipt{
         message_id = MessageId,
         message_status = proplists:get_value(<<"message_status">>, ReceiptData),
-        category = proplists:get_value(<<"category">>, Data)
+        category = proplists:get_value(<<"category">>, ReceiptData)
 
     };
 do_disassemble(MessageId, <<"nack">>, Data) ->
