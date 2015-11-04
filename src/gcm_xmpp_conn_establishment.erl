@@ -35,7 +35,7 @@ establish(GCMJid, Password, Server, Port) ->
         throw:{error, 'not-authorized'} ->
             {error, {authorization_failed, GCMJid, wrong_api_key}};
         Err:Reason ->
-            io:format("[gcm_xmpp_conn_establishment] ~p occured with reason ~p~n StackTrace: ~p~n", [Err, Reason, erlang:get_stacktrace()]),
+            lager:debug("[gcm_xmpp_conn_establishment] ~p occured with reason ~p~n StackTrace: ~p~n", [Err, Reason, erlang:get_stacktrace()]),
             {error, {error_occured, {Err, Reason}}}
     end.
 
