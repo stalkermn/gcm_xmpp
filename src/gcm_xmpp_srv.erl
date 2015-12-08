@@ -204,7 +204,7 @@ handle_info(Info, State) ->
 terminate(_Reason, State) ->
     lager:info("_Reason : ~p", [_Reason]),
     PendingClients = ets:tab2list(State#st.clients_table),
-    reply2error(State#st.clients_table, PendingClients),
+    reply2error(State#st.clients_table, PendingClients, connection_down),
     catch exmpp_session:stop(State#st.session),
     ok.
 
