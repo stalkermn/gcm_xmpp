@@ -79,7 +79,10 @@ assemble_notification_payload(undefined) ->
     gcm_reply().
 disassemble_data(Data) ->
     JSONData = jsx:decode(exmpp_xml:get_cdata(Data)),
-    {_, MessageId} = lists:keyfind(<<"message_id">>, 1, JSONData),
+    MessageId = case lists:keyfind(<<"message_id">>, 1, JSONData) of
+                    false -> <<>>;
+                    {_, Id} ->Id
+                end,
     {_, MessageType} = lists:keyfind(<<"message_type">>, 1, JSONData),
     {MessageId, do_disassemble(MessageId, MessageType, JSONData)}.
 

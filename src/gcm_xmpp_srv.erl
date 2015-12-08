@@ -165,7 +165,7 @@ handle_cast(Request, State) ->
 handle_info({'DOWN',_,process, Pid, Reason}, #st{session = Pid} = State) ->
     lager:info("[~p] xmpp connection ~p down with reason ~p", [?MODULE, Pid, Reason]),
     PendingClients = ets:tab2list(State#st.clients_table),
-    reply2error(State#st.clients_table, PendingClients),
+    reply2error(State#st.clients_table, PendingClients, connection_down),
     {noreply, State#st{session = undefined}};
 
 handle_info(#received_packet{raw_packet = RawPacket}, State) ->
@@ -173,6 +173,8 @@ handle_info(#received_packet{raw_packet = RawPacket}, State) ->
     {MessageId, DisassembledMessage} = gcm_xmpp_assembler:disassemble_data(Data),
     case DisassembledMessage of
         #gcm_control{control_type = <<"CONNECTION_DRAINING">>} ->
+            PendingClients = ets:tab2list(State#st.clients_table),
+            reply2error(State#st.clients_table, PendingClients, connection_draining),
             catch exmpp_session:stop(State#st.session);
         ReplyMessage ->
             Clients2Reply = ets:lookup(State#st.clients_table, MessageId),
@@ -269,9 +271,9 @@ send_push(Session, GcmMessage) when is_pid(Session) andalso is_record(GcmMessage
 send_packet(Session, Packet) when is_tuple(Packet) ->
     exmpp_session:send_packet(Session, Packet).
 
-reply2error(ClientsTable, Clients2Reply) ->
+reply2error(ClientsTable, Clients2Reply, ErrorMessage) ->
     [ begin
-          gen:reply(Client#request.from, {error, Client}),
+          gen:reply(Client#request.from, {error, ErrorMessage}),
           ets:delete_object(ClientsTable, Client)
       end || Client <- Clients2Reply].
 
